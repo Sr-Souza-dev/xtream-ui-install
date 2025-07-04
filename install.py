@@ -242,13 +242,7 @@ def modifyNginx():
         rFile.close()
 
 if __name__ == "__main__":
-    printc("Xtream UI - Installer Mirror", col.OKGREEN, 2)
-    print "%s │ NOTE: this is a forked mirror of original installer from https://xtream-ui.com/install/install.py %s" % (col.OKGREEN, col.ENDC)
-    print "%s │ Check out the mirror repo: https://xtream-ui.org %s" % (col.OKGREEN, col.ENDC)
-    print "%s │ and https://github.com/xtream-ui-org/xtream-ui-install %s" % (col.OKGREEN, col.ENDC)
-    print " "
     rType = raw_input("  Installation Type [MAIN, LB, UPDATE]: ")
-    print " "
     if rType.upper() in ["MAIN", "LB"]:
         if rType.upper() == "LB":
             rHost = raw_input("  Main Server IP Address: ")

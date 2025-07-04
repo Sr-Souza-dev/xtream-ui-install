@@ -5,7 +5,7 @@ from itertools import cycle, izip
 from zipfile import ZipFile
 from urllib2 import Request, urlopen, URLError, HTTPError
 
-rDownloadURL = {"main": "http://xtream-ui.org/main_xtreamcodes_reborn.tar.gz", "sub": "http://xtream-ui.org/sub_xtreamcodes_reborn.tar.gz"}
+rDownloadURL = {"main": "https://github.com/emre1393/xtreamui_mirror/releases/latest/download/main.tar.gz", "sub": "https://github.com/emre1393/xtreamui_mirror/releases/latest/download/LB.tar.gz"}
 rPackages = ["libcurl3", "libxslt1-dev", "libgeoip-dev", "e2fsprogs", "wget", "mcrypt", "nscd", "htop", "zip", "unzip", "mc", "libjemalloc1", "python-paramiko", "mysql-server"]
 rInstall = {"MAIN": "main", "LB": "sub"}
 rUpdate = {"UPDATE": "update"}
@@ -94,8 +94,8 @@ def install(rType="MAIN"):
 def mysql(rUsername, rPassword):
     global rMySQLCnf
     printc("Configuring MySQL", col.UNDERLINE)
-
     rCreate = True
+
     if os.path.exists("/etc/mysql/my.cnf"):
         if open("/etc/mysql/my.cnf", "r").read(14) == "# Xtream Codes": rCreate = False
     if rCreate:

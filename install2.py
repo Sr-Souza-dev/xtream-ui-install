@@ -243,49 +243,31 @@ def modifyNginx():
         rFile.close()
 
 if __name__ == "__main__":
-    rType = raw_input("  Installation Type [MAIN, LB, UPDATE]: ")
-    if rType.upper() in ["MAIN", "LB"]:
-        if rType.upper() == "LB":
-            rHost = raw_input("  Main Server IP Address: ")
-            try: rServerID = int(raw_input("  Load Balancer Server ID: "))
-            except: rServerID = -1
-            print " "
-        else:
-            rHost = "127.0.0.1"
-            rServerID = 1
-            
-        rPassword = raw_input("  MySQL Password: ")
-        rUsername = "user_iptvpro"
-        rDatabase = "xtream_iptvpro"
-        rPort = 7999
-        if len(rHost) > 0 and len(rPassword) > 0 and rServerID > -1:
-            printc("Start installation? Y/N", col.WARNING)
-            if raw_input("  ").upper() == "Y":
-                print " "
-                rRet = prepare(rType.upper())
-                if not install(rType.upper()): sys.exit(1)
-                if rType.upper() == "MAIN":
-                    if not mysql(rUsername, rPassword): sys.exit(1)
-                encrypt(rHost, rUsername, rPassword, rDatabase, rServerID, rPort)
-                configure()
-                if rType.upper() == "MAIN": 
-                    modifyNginx()
-                    update(rType.upper())
-                start()
-                printc("Installation completed!", col.OKGREEN, 2)
-                if rType.upper() == "MAIN":
-                    printc("Please store your MySQL password!")
-                    printc(rPassword)
-                    printc("Admin UI: http://%s:25500" % getIP())
-                    printc("Admin UI default login is admin/admin")
-            else: printc("Installation cancelled", col.FAIL)
-        else: printc("Invalid entries", col.FAIL)
-    elif rType.upper() == "UPDATE":
-        if os.path.exists("/home/xtreamcodes/iptv_xtream_codes/wwwdir/api.php"):
-            printc("Update Admin Panel? Y/N?", col.WARNING)
-            if raw_input("  ").upper() == "Y":
-                if not update(rType.upper()): sys.exit(1)
-                printc("Installation completed!", col.OKGREEN, 2)
-                start()
-            else: printc("Install Xtream Codes Main first!", col.FAIL)
-    else: printc("Invalid installation type", col.FAIL)
+
+    rType = "MAIN"
+    rHost = "127.0.0.1"
+    rServerID = 1
+    rPassword = "D321@#dkpkg@!#"
+    rUsername = "user_iptvpro"
+    rDatabase = "xtream_iptvpro"
+    rPort = 7999
+
+    rRet = prepare(rType)
+    if not install(rType): sys.exit(1)
+    if rType.upper() == "MAIN":
+        if not mysql(rUsername, rPassword): sys.exit(1)
+    encrypt(rHost, rUsername, rPassword, rDatabase, rServerID, rPort)
+    configure()
+    modifyNginx()
+    update(rType.upper())
+    start()
+
+    printc("Installation completed!", col.OKGREEN, 2)
+
+    printc("Please store your MySQL password!")
+    printc(rPassword)
+    printc("Admin UI: http://%s:25500" % getIP())
+    printc("Admin UI default login is admin/admin")
+        
+
+

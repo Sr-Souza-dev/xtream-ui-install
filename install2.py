@@ -42,7 +42,6 @@ def printc(rText, rColour=col.OKBLUE, rPadding=0):
     print "%s │ %s%s%s │ %s" % (rColour, " "*(20-(len(rText)/2)), rText, " "*(40-(20-(len(rText)/2))-len(rText)), col.ENDC)
     for i in range(rPadding): print "%s │                                          │ %s" % (rColour, col.ENDC)
     print "%s └──────────────────────────────────────────┘ %s" % (rColour, col.ENDC)
-    print " "
 
 def prepare(rType="MAIN"):
     global rPackages
@@ -74,8 +73,11 @@ def prepare(rType="MAIN"):
 
 def install(rType="MAIN"):
     global rInstall, rDownloadURL
-    printc("Downloading Software")
-    try: rURL = rDownloadURL[rInstall[rType]]
+    printc("Downloading Software", col.HEADER)
+    try: 
+        rURL = rDownloadURL[rInstall[rType]]
+        print "URL: ", rURL
+
     except:
         printc("Invalid download URL!", col.FAIL)
         return False
@@ -90,50 +92,10 @@ def install(rType="MAIN"):
     printc("Failed to download installation file!", col.FAIL)
     return False
 
-def update(rType="MAIN"):
-    if rType == "UPDATE":
-        printc("Enter the link of release_xyz.zip file:", col.WARNING)
-        rlink = raw_input('Example: https://github.com/Sr-Souza-dev/xtream-ui-install/raw/master/files/release_22f.zip\n\nNow enter the link:\n\n')
-    else:
-        rlink = "https://github.com/Sr-Souza-dev/xtream-ui-install/raw/master/files/release_22f.zip"
-        printc("Installing Admin Panel")
-    hdr = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36',
-       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-       'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
-       'Accept-Encoding': 'none',
-       'Accept-Language': 'en-US,en;q=0.8',
-       'Connection': 'keep-alive'}
-    req = urllib2.Request(rlink, headers=hdr)
-    try:
-    	urllib2.urlopen(req)
-    except:
-        printc("Invalid download URL!", col.FAIL)
-        return False
-    rURL = rlink
-    printc("Downloading Software Update")  
-    os.system('wget -q -O "/tmp/update.zip" "%s"' % rURL)
-    if os.path.exists("/tmp/update.zip"):
-        try: is_ok = zipfile.ZipFile("/tmp/update.zip")
-        except:
-            printc("Invalid link or zip file is corrupted!", col.FAIL)
-            os.remove("/tmp/update.zip")
-            return False
-        printc("Updating Software")
-        os.system('chattr -i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb > /dev/null && rm -rf /home/xtreamcodes/iptv_xtream_codes/admin > /dev/null && rm -rf /home/xtreamcodes/iptv_xtream_codes/pytools > /dev/null && unzip /tmp/update.zip -d /tmp/update/ > /dev/null && cp -rf /tmp/update/XtreamUI-master/* /home/xtreamcodes/iptv_xtream_codes/ > /dev/null && rm -rf /tmp/update/XtreamUI-master > /dev/null && rm -rf /tmp/update > /dev/null && wget -q https://github.com/Sr-Souza-dev/xtream-ui-install/raw/master/files/GeoLite2.mmdb -O /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb > /dev/null && chown -R xtreamcodes:xtreamcodes /home/xtreamcodes/ > /dev/null && chmod +x /home/xtreamcodes/iptv_xtream_codes/permissions.sh > /dev/null && chattr +i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb > /dev/null')
-        if not "sudo chmod 400 /home/xtreamcodes/iptv_xtream_codes/config" in open("/home/xtreamcodes/iptv_xtream_codes/permissions.sh").read(): os.system('echo "#!/bin/bash\nsudo chmod -R 777 /home/xtreamcodes 2>/dev/null\nsudo find /home/xtreamcodes/iptv_xtream_codes/admin/ -type f -exec chmod 644 {} \; 2>/dev/null\nsudo find /home/xtreamcodes/iptv_xtream_codes/admin/ -type d -exec chmod 755 {} \; 2>/dev/null\nsudo find /home/xtreamcodes/iptv_xtream_codes/wwwdir/ -type f -exec chmod 644 {} \; 2>/dev/null\nsudo find /home/xtreamcodes/iptv_xtream_codes/wwwdir/ -type d -exec chmod 755 {} \; 2>/dev/null\nsudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx 2>/dev/null\nsudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx_rtmp/sbin/nginx_rtmp 2>/dev/null\nsudo chmod 400 /home/xtreamcodes/iptv_xtream_codes/config 2>/dev/null" > /home/xtreamcodes/iptv_xtream_codes/permissions.sh')
-        os.system("sed -i 's|xtream-ui.com/install/balancer.py|github.com/emre1393/xtreamui_mirror/raw/master/balancer.py|g' /home/xtreamcodes/iptv_xtream_codes/pytools/balancer.py")
-        os.system("sleep 2 && sudo /home/xtreamcodes/iptv_xtream_codes/permissions.sh > /dev/null")
-        try: os.remove("/tmp/update.zip")
-        except: pass
-        return True
-    printc("Failed to download installation file!", col.FAIL)
-    return False
-
-
 def mysql(rUsername, rPassword):
     global rMySQLCnf
     printc("Configuring MySQL")
-    printc("MyConfig",rMySQLCnf)
+
     rCreate = True
     if os.path.exists("/etc/mysql/my.cnf"):
         if open("/etc/mysql/my.cnf", "r").read(14) == "# Xtream Codes": rCreate = False
@@ -148,7 +110,6 @@ def mysql(rUsername, rPassword):
     for i in range(5):
         if len(rMySQLRoot) > 0: rExtra = " -p%s" % rMySQLRoot
         else: rExtra = ""
-        printc("Drop existing & create database? Y/N", col.WARNING)
         rDrop = True
 
         try:
@@ -253,8 +214,7 @@ if __name__ == "__main__":
 
     rRet = prepare(rType)
     if not install(rType): sys.exit(1)
-    if rType.upper() == "MAIN":
-        if not mysql(rUsername, rPassword): sys.exit(1)
+    if not mysql(rUsername, rPassword): sys.exit(1)
     encrypt(rHost, rUsername, rPassword, rDatabase, rServerID, rPort)
     configure()
     modifyNginx()

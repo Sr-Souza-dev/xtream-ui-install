@@ -3,7 +3,7 @@
 import subprocess, os, sys
 from itertools import cycle, izip
 
-rDownloadURL = "https://bitbucket.org/emre1393/xtreamui_mirror/downloads/sub_xtreamcodes_reborn.tar.gz"
+rDownloadURL = "https://github.com/emre1393/xtreamui_mirror/releases/latest/download/LB.tar.gz"
 rPackages = ["libcurl3", "libxslt1-dev", "libgeoip-dev", "e2fsprogs", "wget", "mcrypt", "nscd", "htop", "zip", "unzip", "mc"]
 
 def getVersion():
@@ -30,6 +30,13 @@ def prepare():
 def install():
     global rDownloadURL
     rURL = rDownloadURL
+    if os.path.exists("/home/xtreamcodes"):
+        os.system("kill $(ps aux | grep '[p]hp' | awk '{print $2}')")
+        os.system("kill $(ps aux | grep '[n]nginx' | awk '{print $2}')")
+        os.system("kill $(ps aux | grep '[f]fmpeg' | awk '{print $2}')")
+        os.system("chattr -i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb > /dev/null")
+        os.system("rm -rf /home/xtreamcodes/tmp/* > /dev/null")
+        os.system("rm -rf /home/xtreamcodes/streams/* > /dev/null")
     os.system('wget -q -O "/tmp/xtreamcodes.tar.gz" "%s"' % rURL)
     if os.path.exists("/tmp/xtreamcodes.tar.gz"):
         os.system('tar -zxvf "/tmp/xtreamcodes.tar.gz" -C "/home/xtreamcodes/" > /dev/null')
@@ -42,7 +49,7 @@ def encrypt(rHost="127.0.0.1", rUsername="user_iptvpro", rPassword="", rDatabase
     try: os.remove("/home/xtreamcodes/iptv_xtream_codes/config")
     except: pass
     rf = open('/home/xtreamcodes/iptv_xtream_codes/config', 'wb')
-    rf.write(''.join(chr(ord(c)^ord(k)) for c,k in izip('{\"host\":\"%s\",\"db_user\":\"%s\",\"db_pass\":\"%s\",\"db_name\":\"%s\",\"server_id\":\"%d\", \"db_port\":\"%d\"}' % (rHost, rUsername, rPassword, rDatabase, rServerID, rPort), cycle('5709650b0d7806074842c6de575025b1'))).encode('base64').replace('\n', ''))
+    rf.write(''.join(chr(ord(c)^ord(k)) for c,k in izip('{\"host\":\"%s\",\"db_user\":\"%s\",\"db_pass\":\"%s\",\"db_name\":\"%s\",\"server_id\":\"%d\", \"db_port\":\"%d\", \"pconnect\":\"0\"}' % (rHost, rUsername, rPassword, rDatabase, rServerID, rPort), cycle('5709650b0d7806074842c6de575025b1'))).encode('base64').replace('\n', ''))
     rf.close()
 
 def configure():
@@ -61,20 +68,31 @@ def configure():
     if not os.path.exists("/home/xtreamcodes/iptv_xtream_codes/tv_archive"): os.mkdir("/home/xtreamcodes/iptv_xtream_codes/tv_archive/")
     os.system("ln -s /home/xtreamcodes/iptv_xtream_codes/bin/ffmpeg /usr/bin/")
     os.system("chattr -i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb > /dev/null")
-    os.system("wget -q https://bitbucket.org/emre1393/xtreamui_mirror/downloads/GeoLite2.mmdb -O /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb")
-    os.system("wget -q https://bitbucket.org/emre1393/xtreamui_mirror/downloads/pid_monitor.php -O /home/xtreamcodes/iptv_xtream_codes/crons/pid_monitor.php")
-    os.system("chown xtreamcodes:xtreamcodes -R /home/xtreamcodes > /dev/null")
     os.system("chmod -R 0777 /home/xtreamcodes > /dev/null")
-    os.system("chattr +i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb > /dev/null")
+    os.system("wget -q https://github.com/emre1393/xtreamui_mirror/releases/latest/download/GeoLite2.mmdb -O /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb")
+    os.system("wget -q https://github.com/emre1393/xtreamui_mirror/releases/latest/download/pid_monitor.php -O /home/xtreamcodes/iptv_xtream_codes/crons/pid_monitor.php")
+    os.system("wget -q https://github.com/emre1393/xtreamui_mirror/releases/latest/download/nginx -O /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx")
+    os.system("wget -q https://github.com/emre1393/xtreamui_mirror/releases/latest/download/nginx_rtmp -O /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx_rtmp")
+    os.system("sudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx")
+    os.system("sudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx_rtmp/sbin/nginx_rtmp")
     os.system("sed -i 's|chown -R xtreamcodes:xtreamcodes /home/xtreamcodes|chown -R xtreamcodes:xtreamcodes /home/xtreamcodes 2>/dev/null|g' /home/xtreamcodes/iptv_xtream_codes/start_services.sh")
     os.system("chmod +x /home/xtreamcodes/iptv_xtream_codes/start_services.sh > /dev/null")
     os.system("mount -a")
     os.system("chmod 0700 /home/xtreamcodes/iptv_xtream_codes/config > /dev/null")
     os.system("sed -i 's|echo \"Xtream Codes Reborn\";|header(\"Location: https://www.google.com/\");|g' /home/xtreamcodes/iptv_xtream_codes/wwwdir/index.php")
+    os.system("chown xtreamcodes:xtreamcodes -R /home/xtreamcodes > /dev/null")
+    os.system("chattr +i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb > /dev/null")
+
+    if not "xtream-codes.com" in open("/etc/hosts").read(): os.system('echo "127.0.0.1    xtream-codes.com" >> /etc/hosts')
     if not "api.xtream-codes.com" in open("/etc/hosts").read(): os.system('echo "127.0.0.1    api.xtream-codes.com" >> /etc/hosts')
     if not "downloads.xtream-codes.com" in open("/etc/hosts").read(): os.system('echo "127.0.0.1    downloads.xtream-codes.com" >> /etc/hosts')
-    if not "xtream-codes.com" in open("/etc/hosts").read(): os.system('echo "127.0.0.1    xtream-codes.com" >> /etc/hosts')
     if not "@reboot root /home/xtreamcodes/iptv_xtream_codes/start_services.sh" in open("/etc/crontab").read(): os.system('echo "@reboot root /home/xtreamcodes/iptv_xtream_codes/start_services.sh" >> /etc/crontab')
+    #adds domain/user/pass/id.ts url support
+    with open('/home/xtreamcodes/iptv_xtream_codes/nginx/conf/nginx.conf', 'r') as nginx_file:
+        nginx_replace = nginx_file.read()
+        nginx_replace = nginx_replace.replace("rewrite ^/(.*)/(.*)/(\\d+)$ /streaming/clients_live.php?username=$1&password=$2&stream=$3&extension=ts break;", "rewrite ^/(.*)/(.*)/(\\d+)\\.(.*)$ /streaming/clients_live.php?username=$1&password=$2&stream=$3&extension=$4 break;\r\n        rewrite ^/(.*)/(.*)/(\\d+)$ /streaming/clients_live.php?username=$1&password=$2&stream=$3&extension=ts break;\r\n")
+    with open('/home/xtreamcodes/iptv_xtream_codes/nginx/conf/nginx.conf', 'w') as nginx_file:
+        nginx_file.write(nginx_replace)
 
 def start(): os.system("/home/xtreamcodes/iptv_xtream_codes/start_services.sh > /dev/null")
 

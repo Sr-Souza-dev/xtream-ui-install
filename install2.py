@@ -45,6 +45,7 @@ def printc(rText, rColour=col.OKBLUE, rPadding=0):
 
 def prepare(rType="MAIN"):
     global rPackages
+
     printc("Preparing Installation", col.UNDERLINE)
     for rFile in ["/var/lib/dpkg/lock-frontend", "/var/cache/apt/archives/lock", "/var/lib/dpkg/lock"]:
         try: os.remove(rFile)
@@ -73,13 +74,12 @@ def prepare(rType="MAIN"):
 def install(rType="MAIN"):
     global rInstall, rDownloadURL
     printc("Downloading Software", col.UNDERLINE)
-    try: 
-        rURL = rDownloadURL[rInstall[rType]]
-        print "URL: ", rURL
 
+    try: rURL = rDownloadURL[rInstall[rType]]
     except:
         printc("Invalid download URL!", col.FAIL)
         return False
+    
     os.system('wget -q -O "/tmp/xtreamcodes.tar.gz" "%s"' % rURL)
     if os.path.exists("/tmp/xtreamcodes.tar.gz"):
         printc("Installing Software")
@@ -135,18 +135,18 @@ def mysql(rUsername, rPassword):
     return False
 
 def encrypt(rHost="127.0.0.1", rUsername="user_iptvpro", rPassword="", rDatabase="xtream_iptvpro", rServerID=1, rPort=7999):
-    printc("Encrypting...")
-    # try: os.remove("/home/xtreamcodes/iptv_xtream_codes/config")
-    # except: pass
+    printc("Encrypting...", col.UNDERLINE)
+    try: os.remove("/home/xtreamcodes/iptv_xtream_codes/config")
+    except: pass
     rf = open('/home/xtreamcodes/iptv_xtream_codes/config', 'wb')
     rf.write(''.join(chr(ord(c)^ord(k)) for c,k in izip('{\"host\":\"%s\",\"db_user\":\"%s\",\"db_pass\":\"%s\",\"db_name\":\"%s\",\"server_id\":\"%d\", \"db_port\":\"%d\"}' % (rHost, rUsername, rPassword, rDatabase, rServerID, rPort), cycle('5709650b0d7806074842c6de575025b1'))).encode('base64').replace('\n', ''))
     rf.close()
 
 def configure():
-    printc("Configuring System")
+    printc("Configuring System", col.UNDERLINE)
     if not "/home/xtreamcodes/iptv_xtream_codes/" in open("/etc/fstab").read():
         rFile = open("/etc/fstab", "a")
-        rFile.write("tmpfs /home/xtreamcodes/iptv_xtream_codes/streams tmpfs defaults,noatime,nosuid,nodev,noexec,mode=1777,size=90% 0 0\ntmpfs /home/xtreamcodes/iptv_xtream_codes/tmp tmpfs defaults,noatime,nosuid,nodev,noexec,mode=1777,size=2G 0 0")
+        rFile.write("tmpfs /home/xtreamcodes/iptv_xtream_codes/streams tmpfs defaults,noatime,nosuid,nodev,noexec,mode=1777,size=90% 0 0\ntmpfs /home/xtreamcodes/iptv_xtream_codes/tmp tmpfs defaults,noatime,nosuid,nodev,noexec,mode=1777,size=3G 0 0")
         rFile.close()
     if not "xtreamcodes" in open("/etc/sudoers").read():
         os.system('echo "xtreamcodes ALL = (root) NOPASSWD: /sbin/iptables, /usr/bin/chattr" >> /etc/sudoers')
@@ -155,34 +155,39 @@ def configure():
         rFile.write("#! /bin/bash\n/home/xtreamcodes/iptv_xtream_codes/start_services.sh")
         rFile.close()
         os.system("chmod +x /etc/init.d/xtreamcodes > /dev/null")
+    os.system("mount -a")
     try: os.remove("/usr/bin/ffmpeg")
     except: pass
-    if rType == "MAIN": 
-        # edited these 2 files return api response without main server ip, it is usefull if you use a proxy in front of your main server.
-        os.system("mv /home/xtreamcodes/iptv_xtream_codes/wwwdir/panel_api.php /home/xtreamcodes/iptv_xtream_codes/wwwdir/.panel_api_original.php && wget -q https://github.com/Sr-Souza-dev/xtream-ui-install/raw/master/files/panel_api.php -O /home/xtreamcodes/iptv_xtream_codes/wwwdir/panel_api.php")
-        os.system("mv /home/xtreamcodes/iptv_xtream_codes/wwwdir/player_api.php /home/xtreamcodes/iptv_xtream_codes/wwwdir/.player_api_original.php && wget -q https://github.com/Sr-Souza-dev/xtream-ui-install/raw/master/files/player_api.php -O /home/xtreamcodes/iptv_xtream_codes/wwwdir/player_api.php")
     if not os.path.exists("/home/xtreamcodes/iptv_xtream_codes/tv_archive"): os.mkdir("/home/xtreamcodes/iptv_xtream_codes/tv_archive/")
     os.system("ln -s /home/xtreamcodes/iptv_xtream_codes/bin/ffmpeg /usr/bin/")
-    os.system("wget -q https://github.com/Sr-Souza-dev/xtream-ui-install/raw/master/files/GeoLite2.mmdb -O /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb")
-    os.system("wget -q https://github.com/Sr-Souza-dev/xtream-ui-install/raw/master/files/pid_monitor.php -O /home/xtreamcodes/iptv_xtream_codes/crons/pid_monitor.php")
     os.system("chown xtreamcodes:xtreamcodes -R /home/xtreamcodes > /dev/null")
     os.system("chmod -R 0777 /home/xtreamcodes > /dev/null")
-    os.system("chattr +i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb > /dev/null")
-    os.system("sed -i 's|chown -R xtreamcodes:xtreamcodes /home/xtreamcodes|chown -R xtreamcodes:xtreamcodes /home/xtreamcodes 2>/dev/null|g' /home/xtreamcodes/iptv_xtream_codes/start_services.sh")
-    os.system("chmod +x /home/xtreamcodes/iptv_xtream_codes/start_services.sh > /dev/null")
-    os.system("mount -a")
+    if rType == "MAIN": 
+        os.system("sudo find /home/xtreamcodes/iptv_xtream_codes/admin/ -type f -exec chmod 644 {} \;")
+        os.system("sudo find /home/xtreamcodes/iptv_xtream_codes/admin/ -type d -exec chmod 755 {} \;")
+    #adds domain/user/pass/id.ts url support
+    with open('/home/xtreamcodes/iptv_xtream_codes/nginx/conf/nginx.conf', 'r') as nginx_file:
+        nginx_replace = nginx_file.read()
+        nginx_replace = nginx_replace.replace("rewrite ^/(.*)/(.*)/(\\d+)$ /streaming/clients_live.php?username=$1&password=$2&stream=$3&extension=ts break;", "rewrite ^/(.*)/(.*)/(\\d+)\\.(.*)$ /streaming/clients_live.php?username=$1&password=$2&stream=$3&extension=$4 break;\r\n        rewrite ^/(.*)/(.*)/(\\d+)$ /streaming/clients_live.php?username=$1&password=$2&stream=$3&extension=ts break;\r\n")
+    with open('/home/xtreamcodes/iptv_xtream_codes/nginx/conf/nginx.conf', 'w') as nginx_file:
+        nginx_file.write(nginx_replace)
+    os.system("wget -q https://github.com/emre1393/xtreamui_mirror/releases/latest/download/nginx -O /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx")
+    os.system("wget -q https://github.com/emre1393/xtreamui_mirror/releases/latest/download/nginx_rtmp -O /home/xtreamcodes/iptv_xtream_codes/nginx_rtmp/sbin/nginx_rtmp")
+    os.system("wget -q https://github.com/emre1393/xtreamui_mirror/releases/latest/download/pid_monitor.php -O /home/xtreamcodes/iptv_xtream_codes/crons/pid_monitor.php")
+    os.system("sudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx")
+    os.system("sudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx_rtmp/sbin/nginx_rtmp")
+    os.system("sudo find /home/xtreamcodes/iptv_xtream_codes/wwwdir/ -type f -exec chmod 644 {} \;")
+    os.system("sudo find /home/xtreamcodes/iptv_xtream_codes/wwwdir/ -type d -exec chmod 755 {} \;")
     os.system("chmod 0700 /home/xtreamcodes/iptv_xtream_codes/config > /dev/null")
     os.system("sed -i 's|echo \"Xtream Codes Reborn\";|header(\"Location: https://www.google.com/\");|g' /home/xtreamcodes/iptv_xtream_codes/wwwdir/index.php")
-    #new sysctl.conf
-    os.system("/bin/cp /etc/sysctl.conf /etc/sysctl.conf.bak")
-    os.system('echo "%s" > /etc/sysctl.conf' % rSysCtl)
-    os.system("/sbin/sysctl -p > /dev/null")
-    #new alias, shortcuts, restartpanel and reloadnginx
-    os.system('echo "alias restartpanel=\'sudo /home/xtreamcodes/iptv_xtream_codes/start_services.sh && echo done\'\nalias reloadnginx=\'sudo /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx -s reload && echo done\'" > /root/.bash_aliases')
-    os.system("source /root/.bashrc > /dev/null")
+    os.system("wget -q https://github.com/emre1393/xtreamui_mirror/releases/latest/download/GeoLite2.mmdb -O /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb")
+    os.system('chattr -f +i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb > /dev/null')
+    os.system("sed -i 's|chown -R xtreamcodes:xtreamcodes /home/xtreamcodes|chown -R xtreamcodes:xtreamcodes /home/xtreamcodes 2>/dev/null|g' /home/xtreamcodes/iptv_xtream_codes/start_services.sh")
+    os.system("chmod +x /home/xtreamcodes/iptv_xtream_codes/start_services.sh > /dev/null")
+
+    if not "xtream-codes.com" in open("/etc/hosts").read(): os.system('echo "127.0.0.1    xtream-codes.com" >> /etc/hosts')
     if not "api.xtream-codes.com" in open("/etc/hosts").read(): os.system('echo "127.0.0.1    api.xtream-codes.com" >> /etc/hosts')
     if not "downloads.xtream-codes.com" in open("/etc/hosts").read(): os.system('echo "127.0.0.1    downloads.xtream-codes.com" >> /etc/hosts')
-    if not "xtream-codes.com" in open("/etc/hosts").read(): os.system('echo "127.0.0.1    xtream-codes.com" >> /etc/hosts')
     if not "@reboot root /home/xtreamcodes/iptv_xtream_codes/start_services.sh" in open("/etc/crontab").read(): os.system('echo "@reboot root /home/xtreamcodes/iptv_xtream_codes/start_services.sh" >> /etc/crontab')
 
 

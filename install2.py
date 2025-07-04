@@ -143,15 +143,14 @@ def mysql(rUsername, rPassword):
         rFile.write(rMySQLCnf)
         rFile.close()
         os.system("service mysql restart > /dev/null")
-    printc("Enter MySQL Root Password:", col.WARNING)
+
+    rMySQLRoot = rPassword 
     for i in range(5):
-        rMySQLRoot = raw_input("  ")
-        print " "
         if len(rMySQLRoot) > 0: rExtra = " -p%s" % rMySQLRoot
         else: rExtra = ""
         printc("Drop existing & create database? Y/N", col.WARNING)
-        if raw_input("  ").upper() == "Y": rDrop = True
-        else: rDrop = False
+        rDrop = True
+
         try:
             if rDrop:
                 os.system('mysql -u root%s -e "DROP USER IF EXISTS \'%s\'@\'%%\';" > /dev/null' % (rExtra, rUsername))
